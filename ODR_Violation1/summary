@@ -1,0 +1,9 @@
+In this program, we'll check if a header file containing namespace scoped
+string variable when included by multiple cpp files can violate ODR.
+
+Findings:
+1. ODR was violated.
+2. However, on making the variable const the program worked fine as const by
+   default is static.
+3. On making std::string as constexpr, the compiler gave errors. It turns out
+   that std::string can't be constexpr. In C++17 there's string_view for that.
