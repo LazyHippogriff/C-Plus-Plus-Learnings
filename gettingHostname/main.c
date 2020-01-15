@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
   printf("\nsa.sin_addr.s_addr[%d]\n",sa.sin_addr.s_addr);
 
   char node[NI_MAXHOST];
+  memset(node,0,NI_MAXHOST);
   res = getnameinfo((struct sockaddr*)&sa, sizeof(sa), node, sizeof(node), NULL, 0, 0);
   if (res)
   {
