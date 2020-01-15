@@ -1,1 +1,2 @@
 The objective of this C program is to get the hostname of a server given its IP and port.
+Code taken from https://codereview.stackexchange.com/a/235647/185560
