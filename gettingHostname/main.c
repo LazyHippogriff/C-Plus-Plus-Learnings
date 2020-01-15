@@ -7,7 +7,7 @@ union {
   struct sockaddr         sa;
   struct sockaddr_in      s4;
   struct sockaddr_in6     s6;
-  struct sockaddr_storage ss;
+  struct sockaddr_storage ss; //Not really required. Could be removed.
 } addr;
 
 
