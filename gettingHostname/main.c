@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
   res = getnameinfo((struct sockaddr*)&sa, sizeof(sa), node, sizeof(node), NULL, 0, 0);
   if (res)
   {
-    printf("&#37;s\n", gai_strerror(res));
+    printf("%s\n", gai_strerror(res));
     exit(1);
   }
   printf("\nIP[%s]\n",argv[1]);
