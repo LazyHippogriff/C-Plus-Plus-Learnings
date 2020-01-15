@@ -15,12 +15,12 @@ int main(int argc, char** argv) {
   int res = inet_pton(AF_INET, argv[1] , &sa.sin_addr);
   switch(res) {
     case 0: printf("\nInput address is not a valid IPv4 address.\n");
-    case -1: if(res == 1)
+    case -1: if(res == -1)
                printf("\nError(%s)\n",strerror(errno));
              int n_res = inet_pton(AF_INET6, argv[1] , &sa.sin_addr);
              switch(n_res) {
                case 0: printf("\nInput address is not a valid IPv6 address.\n");
-               case -1: if(n_res == 1)
+               case -1: if(n_res == -1)
                           printf("\nError(%s)\n",strerror(errno));
                         exit(-1);
                case 1: sa.sin_family = AF_INET;
