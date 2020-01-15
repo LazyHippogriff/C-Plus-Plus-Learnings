@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
                case -1: if(n_res == -1)
                           printf("\nError(%s)\n",strerror(errno));
                         exit(-1);
-               case 1: sa.sin_family = AF_INET;
+               case 1: sa.sin_family = AF_INET6;
              }
     case 1: sa.sin_family = AF_INET;
   }
