@@ -1,0 +1,49 @@
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<arpa/inet.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string>
+#include <string>
+
+using namespace std;
+
+string getNextIP(const char* ipv6, int incrementValue) {
+  struct in6_addr sn6;
+  inet_pton(AF_INET6,ipv6,&sn6);
+
+  int octet;
+  for (octet = 15; octet >= 0; --octet) {
+    if (sn6.s6_addr[octet] < 256-incrementValue) {
+      sn6.s6_addr[octet]+=incrementValue;
+      break;
+    } else sn6.s6_addr[octet] = 0;
+  }
+
+  if (octet < 0) return string();
+
+  char buff[INET6_ADDRSTRLEN]={0};
+  string newIp(inet_ntop(AF_INET6,&sn6,buff,INET6_ADDRSTRLEN));
+  printf("IP %s\n",newIp.c_str());
+  return newIp;
+
+}
+
+int main(int argc, char** argv) {
+
+  if(argc!=4) {
+    printf("\n%s [IP] [nIterations] [incrementValue]\ne.g. %s 2405:201:fffb:125::51:a03 3 1\n",argv[0],argv[0]);
+    exit(-1);
+  }
+  printf("\nIP given: %s\n",argv[1]);
+  int nIterations = std::stoi(argv[2]);
+
+  string nextIp(argv[1]);
+  int incrementValue = stoi(argv[3]);
+  while(nIterations >0 ){
+    --nIterations;
+    nextIp = getNextIP(nextIp.c_str(), incrementValue);
+  }
+}
