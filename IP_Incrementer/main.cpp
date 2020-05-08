@@ -1,3 +1,7 @@
+/**
+This program takes the IP, IP type(IPv4/IPv6), the network mask and the number of iterations(n) in the input and produces the next n IPs
+*/
+
 #include<sys/socket.h>
 #include<sys/types.h>
 #include<arpa/inet.h>
