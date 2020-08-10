@@ -1,0 +1,311 @@
+2 types of communications:
+1. Connection oriented.
+2. Connectionless
+
+Socket Message Types in connection oriented communication(Kinds of messages exchanged between the server and the client):
+1. Connection Initiation Request Messages(CIR): Request to server from client to accept and establish a connection.(Processed by Master socket file descriptor)
+2. Service Request Messages: These are sent by the client only when the connection is fully established.(Processed by client handles/data sockets).
+
+
+Server Side APIs:
+1. Connection Initiation Request: accept()
+2. Service Request: recvmsg(), recvfrom(), read()
+
+Client side APIs
+1. Connection Initiation Request: connect()
+2. Service Request: sendmsg(), sendto(), write()
+
+
+State Machine of Socket based client server(connection oriented):
+Server:
+1. When server boots up, the very first thing it does is to create a connection socket/master socket file descriptor using socket().
+2. Master Socket file descriptor receives the new connection request message from the client.
+3. Master Socket file descriptor will then create a handle(data sockets) using accept system call for that client. There will be as many handles as there are clients.
+4. When the server(operating system) receives a service request message from a client, it will then divert that request to the client handle(data socket).
+5. Master Socket file descriptor is not used to process the service request messages from the clients. It's only use is to give birth to client handles for each client.
+
+
+
+Unix Domain Sockets
+1. Unix Domain Sockets are used for communication between processes on the same machine.
+2. Both stream based and datagram based communication can be established using unix domain sockets.
+
+In stream based communication, there is a continuous flow of bytes between the processes.
+In datagram based communication, data is exchanged in chunks known as datagram.
+
+
+Steps used in unix domain socket communication:
+1. Remove the socket, if already exists.
+2. Create a Unix sockets using socket().
+3. Specify the socket name.
+4. Bind the socket using bind()
+5. listen()
+6. accept()
+7. Read the data recvd on socket using read()
+8. Send back the result using write()
+9. close the data socket
+10. close the connection socket
+11. Remove the socket.
+12. exit.
+
+
+Sample Server Program
+/**
+ * This server will accept numeric values from the clients and add it to its
+ * local variable. When the client will send 0 to the server, the server will
+ * send back the result to the client. After sending the result, the server
+ * will close the connection with this client and will be ready to accept some
+ * new values from some new clients.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+#define SOCKET_NAME "/tmp/DemoSocket"
+#define BUFFER_SIZE 128
+
+int
+main(int argc, char *argv[])
+{
+  struct sockaddr_un name;
+
+#if 0
+  struct sockaddr_un {
+    sa_family_t sun_family;               /* AF_UNIX */
+    char        sun_path[108];            /* pathname */
+  };
+#endif
+
+  int ret;
+  int connection_socket;
+  int data_socket;
+  int result;
+  int data;
+  char buffer[BUFFER_SIZE]; ///This buffer will be used by the server process to receive/send the data from/to the client.
+
+  /*In case the program exited inadvertently on the last run,
+   *remove the socket.
+   **/
+
+  unlink(SOCKET_NAME); ///Step 1.
+
+  /* Create Master socket. */
+
+  /*SOCK_DGRAM for Datagram based communication*/
+  connection_socket = socket(AF_UNIX, SOCK_STREAM, 0); ///Step 2.
+
+  if (connection_socket == -1) {
+    perror("socket");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("Master socket created\n");
+
+  /*initialize*/
+  memset(&name, 0, sizeof(struct sockaddr_un));
+
+  /*Specify the socket Cridentials*/
+  name.sun_family = AF_UNIX;
+  strncpy(name.sun_path, SOCKET_NAME, sizeof(name.sun_path) - 1); ///Step 3.
+
+  /* Bind socket to socket name.*/
+  /* Purpose of bind() system call is that application() dictates the underlying
+   * operating system the criteria of recieving the data. Here, bind() system call
+   * is telling the OS that if sender process sends the data destined to socket "/tmp/DemoSocket",
+   * then such data needs to be delivered to this server process (the server process)*/
+  ret = bind(connection_socket, (const struct sockaddr *) &name,
+      sizeof(struct sockaddr_un)); ///Step 4.
+
+  if (ret == -1) {
+    perror("bind");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("bind() call succeed\n");
+  /*
+   * Prepare for accepting connections. The backlog size is set
+   * to 20. So while one request is being processed other requests
+   * can be waiting.
+   * */
+
+  ret = listen(connection_socket, 20); ///Step 5.
+  if (ret == -1) {
+    perror("listen");
+    exit(EXIT_FAILURE);
+  }
+
+  /* This is the main loop for handling connections. */
+  /*All Server process usually runs 24 x 7. Good Servers should always up
+   * and running and shold never go down. Have you ever seen Facebook Or Google
+   * page failed to load ??*/
+  for (;;) {
+
+    /* Wait for incoming connection. */
+    printf("Waiting on accept() sys call\n");
+
+    data_socket = accept(connection_socket, NULL, NULL); ///Step 6.
+
+    if (data_socket == -1) {
+      perror("accept");
+      exit(EXIT_FAILURE);
+    }
+
+    printf("Connection accepted from client\n");
+
+    result = 0;
+    for(;;) {
+
+      /*Prepare the buffer to recv the data*/
+      memset(buffer, 0, BUFFER_SIZE);
+
+      /* Wait for next data packet. */
+      /*Server is blocked here. Waiting for the data to arrive from client
+       * 'read' is a blocking system call*/
+      printf("Waiting for data from the client\n");
+      ret = read(data_socket, buffer, BUFFER_SIZE); ///Step 7.
+
+      if (ret == -1) {
+        perror("read");
+        exit(EXIT_FAILURE);
+      }
+
+      /* Add received summand. */
+      memcpy(&data, buffer, sizeof(int));
+      if(data == 0) break;
+      result += data;
+    }
+
+    /* Send result. */
+    memset(buffer, 0, BUFFER_SIZE);
+    sprintf(buffer, "Result = %d", result);
+
+    printf("sending final result back to client\n");
+    ret = write(data_socket, buffer, BUFFER_SIZE); ///Step 8.
+    if (ret == -1) {
+      perror("write");
+      exit(EXIT_FAILURE);
+    }
+
+    /* Close socket. */
+    close(data_socket); ///Step 9.
+  }
+
+  /*close the master socket*/
+  close(connection_socket); ///Step 10.
+  printf("connection closed..\n");
+
+  /* Server should release resources before getting terminated.
+   * Unlink the socket. */
+
+  unlink(SOCKET_NAME); ///Step 11.
+  exit(EXIT_SUCCESS); ///Step 12.
+}
+
+Sample Client Program
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+#define SOCKET_NAME "/tmp/DemoSocket"
+#define BUFFER_SIZE 128
+
+int
+main(int argc, char *argv[])
+{
+    struct sockaddr_un addr;
+    int i;
+    int ret;
+    int data_socket;
+    char buffer[BUFFER_SIZE];
+
+    /* Create data socket. */
+
+    data_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+
+    if (data_socket == -1) {
+        perror("socket");
+        exit(EXIT_FAILURE);
+    }
+
+    /*
+     * For portability clear the whole structure, since some
+     * implementations have additional (nonstandard) fields in
+     * the structure.
+     * */
+
+    memset(&addr, 0, sizeof(struct sockaddr_un));
+
+    /* Connect socket to socket address */
+
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, SOCKET_NAME, sizeof(addr.sun_path) - 1);
+
+    ret = connect (data_socket, (const struct sockaddr *) &addr,
+            sizeof(struct sockaddr_un));
+
+    if (ret == -1) {
+        fprintf(stderr, "The server is down.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Send arguments. */
+    do{
+        printf("Enter number to send to server :\n");
+        scanf("%d", &i);
+        ret = write(data_socket, &i, sizeof(int));
+        if (ret == -1) {
+            perror("write");
+            break;
+        }
+        printf("No of bytes sent = %d, data sent = %d\n", ret, i);
+    } while(i);
+
+    /* Request result. */
+
+    memset(buffer, 0, BUFFER_SIZE);
+    strncpy (buffer, "RES", strlen("RES"));
+    buffer[strlen(buffer)] = '\0';
+    printf("buffer = %s\n", buffer);
+
+    ret = write(data_socket, buffer, strlen(buffer));
+    if (ret == -1) {
+        perror("write");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Receive result. */
+    memset(buffer, 0, BUFFER_SIZE);
+
+    ret = read(data_socket, buffer, BUFFER_SIZE);
+    if (ret == -1) {
+        perror("read");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Ensure buffer is 0-terminated. */
+
+    buffer[BUFFER_SIZE - 1] = 0;
+
+    printf("Result = %s\n", buffer);
+
+    /* Close socket. */
+
+    close(data_socket);
+
+    exit(EXIT_SUCCESS);
+}
+
+
+
+
+
+
