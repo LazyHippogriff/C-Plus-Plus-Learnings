@@ -1,0 +1,171 @@
+1. To find memory leaks:
+nohup pidstat -r time_in_seconds -p PID > pidstats &
+
+
+Passing output of command 1 to command 2:
+command1 | xargs -I{} command2 {}
+
+w command displays information about the users currently on the machine, and their processes. This gives more information than who and last command and also serves our purpose to get the list of active SSH connections. Additionally it also gives us the information of the running process on those sessions.
+Using w command you will also get the idle time details, i.e. for how long the session is idle. If the SSH session is idle for long period then it is a security breach and it is recommended that such idle SSH session must be killed, you can configure your Linux host to automatically kill such idle SSH session.
+Finding out date of password expiry of all users: for user in $(cat /etc/passwd |cut -d: -f1); do echo $user; chage -l $user | grep "Password expires"; done | paste -d " "  - - | sed 's/Password expires//g'
+Turning off password expiry: https://www.cyberciti.biz/tips/setting-off-password-aging-expiration.html
+chage -I -1 -m 0 -M 99999 -E -1 username
+tshark -i any udp port 8805 -w test.pcap
+
+
+Instead of iptraf, use iftop:
+
+
+To do ssh port forwarding use the following command:
+nohup ssh -o StrictHostKeyChecking=no -fnNL 10.49.11.150:22174:10.64.105.174:22 hss@localhost &
+nohup ssh -fnN -o StrictHostKeyChecking=no hss@localhost -L 10.49.11.150:42003:[2405:200:1413:100:0:0:8c:3]:22 &
+To find the number of threads of a process:
+ps -o nlwp $PID
+To find memory leaks:
+pidstat -r 2 -p 3318 (just check if VSZ and RSS are increasing)
+pidstat -rud 2 -p 3318
+-u(for cpu stats)
+-d(for device i/o stats)
+iftop -i bond1.836 -P –N
+tcpdump command
+tcpdump port 6382 -i bond1.836 -w output.pcap
+iostat -mdhxyc sda3 1
+-m Display statistics in megabytes per second.
+-c Display the CPU utilization report. The values are global averages among all processors. 
+-d Display the device utilization report.
+-h Make the Device Utilization Report easier to read by a human.
+-y Omits the first report(as it considers the time since the system was booted).
+-x Display extended statistics.
+sda3 Device to focus
+1 repetition time in seconds
+Key metrics observed from cpu utilisation report:
+1. %user: Show the percentage of CPU utilization that occurred while executing at the user level (application).
+2. %system: Show the percentage of CPU utilization that occurred while executing at the system level (kernel).
+3. %iowait: Show the percentage of time that the CPU or CPUs were idle during which the system had an outstanding disk I/O request.
+
+Key metrics to observe from device utilisation report:
+1. w/s: The number (after merges) of write requests completed per second for the device.
+2. w_await: The average time (in milliseconds) for write requests issued to the device to be served. This includes the time spent by the requests in
+queue and the time spent servicing them.
+3. %util: Percentage of CPU time during which I/O requests were issued to the device(Not a very good metric in case of SSD. https://brooker.co.za/blog/2014/07/04/iostat-pct.html)
+
+
+iotop -p pid -Ptn 20
+-p A list of processes/threads to monitor
+-P Only show processes. Normally iotop shows all threads.
+-t Add a timestamp on each line
+-n Set the number of iterations before quitting
+Key metrics observed in the output:
+
+IO: It shows what % of each process's time is spent on I/O(includes swap).
+SWAPIN: displays swap usage for each process.
+Total DISK WRITE
+Actual DISK WRITE
+Total DISK READ and Total DISK WRITE values represent total read and write bandwidth between processes and kernel threads on the one side and kernel block device subsystem on the other. While Actual DISK READ and Actual DISK WRITE values represent corresponding bandwidths for actual disk I/O between kernel block device subsystem and underlying hardware (HDD, SSD, etc.). Thus Total and Actual values may not be equal at any given moment of time due to data caching and I/O operations reordering that take place inside Linux kernel.
+
+#script for collecting iostat and iotop statistics for all running redis-server processes while executing benchmarking client program.
+
+rm -f pidList &
+rm -f iostat_log &
+rm -f iotop_log &
+rm -f iostat_log_temp &
+rm -f iotop_log_temp &
+
+/home/redis/redisClusterBenchmarking 2405:200:1413:100::8d:2_6379 1000000 10 3 &
+ps -ef | grep "../redis-server" | grep -v "grep" | awk '{print$2}' > pidList
+begin="/usr/sbin/iotop "
+end=" -Ptn 20"
+middle=" "
+for i in $(cat pidList); do middle="${middle} -p ${i} ";done;
+
+final="${begin} ${middle} ${end}"
+#echo "final: ${final}"
+iostat -mdhxyc sda3 1 > iostat_log_temp &
+${final} > iotop_log_temp &
+pid=$(ps -ef | grep "iostat -mdh" | grep -v "grep"|awk '{print$2}')
+#echo $pid
+sleep 30s
+kill -9 ${pid}
+
+#To remove completely blank lines from the files
+grep "\S" iostat_log_temp > iostat_log
+grep "\S" iotop_log_temp > iotop_log
+rm -f iostat_log_temp &
+rm -f iotop_log_temp &
+rm -f pidList &
+
+
+
+
+
+
+Rpm –qa(lists all the rpms installed)
+
+
+
+To remove all lines having “string”
+sed -i -e "/^.*string.*$/d" temp_file
+
+Notes:
+*) -i stands for “in-place”, i.e. perform the command directly in the file (GNU sed only);
+*) The caret (^) matches the beginning of the line;
+*) A period (.) matches any single character;
+*) The asterisk (*) matches zero or more occurrences of the previous character;
+*) The dollar sign ($) matches the end of the line;
+*) d is the delete command;
+
+
+Changing Hostname
+Change in vi /etc/sysconfig/network
+And
+vi /etc/hosts
+
+SSH login without password
+http://linuxproblem.org/art_9.html
+
+To list all the users along with their userids
+cut -d: -f1,3 /etc/passwd
+
+To check versions of rpm packages
+rpm -qa | grep -i aerospike
+
+To remove an old RSA key
+ssh-keygen -R 172.16.129.68
+
+To find the resources consumed by each thread of a pid
+top -p PID -H
+
+
+To find port forwarding in linux gateway
+
+Ps –ef | grep fnNl(or just fn)
+
+To find info about cpu (lscpu)
+To find bits of OS(getconf LONG_BIT or uname -a)
+
+To monitor system metrics
+dstat -lrvn 10
+
+finding number of java applications running on linux
+ps -ef | grep "[j]ava" | wc –l
+
+
+finding pid of running java applications
+ps aux | grep java
+
+finding info from pid
+ps -p 3339 -o comm=
+
+To create a user account from a shell prompt:
+1.	Open a shell prompt.
+2.	If you are not logged in as root, type the command su - and enter the root password.
+3.	Type useradd followed by a space and the username for the new account you are creating at the command line (for example, useradd jsmith). Press [Enter]. Often, usernames are variations on the user's name, such as jsmith for John Smith. User account names can be anything from the user's name, initials, or birthplace to something more creative.
+4.	Type passwd followed by a space and the username again (for example, passwd jsmith).
+5.	At the New password: prompt enter a password for the new user and press [Enter].
+6.	At the Retype new password: prompt, enter the same password to confirm your selection.
+
+
+Route –n command will tell about the default gateway of the subnet.
+
+
+
