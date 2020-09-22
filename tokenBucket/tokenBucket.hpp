@@ -7,7 +7,7 @@
 class tokenBucket{
   private:
     std::mutex m_mu;
-    uint64_t m_bucketSize; //Bucket Size = token fill rate per second.
+    uint64_t m_bucketSize; // Currently I'm taking Bucket Size = token fill rate per second.
     uint64_t m_tokenFillRatePerSecond;
     uint64_t m_availableTokens; //current number of tokens available in the bucket
     uint64_t m_lastRequestTime; //to maintain the time of last request for token.
