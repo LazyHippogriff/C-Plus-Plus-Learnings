@@ -20,7 +20,7 @@ class tokenBucket{
       /*calculate tokens added in particular time difference */
       if (fa_currentRequestTime >= m_lastRefillTime + m_timeIntervalPerRequestInMicroSeconds) {
 
-        uint64_t l_newTokens = (fa_currentRequestTime - m_lastRefillTime)/m_timeIntervalPerRequestInMicroSeconds; //new tokens available in time diff of microsecond level
+        uint64_t l_newTokens = (fa_currentRequestTime - m_lastRefillTime)/m_timeIntervalPerRequestInMicroSeconds;
 
         if(m_availableTokens + l_newTokens < m_bucketSize) {
           m_availableTokens += l_newTokens;
@@ -28,7 +28,7 @@ class tokenBucket{
         else {
           m_availableTokens = m_bucketSize;
         }
-        m_lastRefillTime = fa_currentRequestTime; //not update last fill if tokes in bucket are empty or less then 1 to handle 1 request
+        m_lastRefillTime = fa_currentRequestTime;
       }
     }
 
