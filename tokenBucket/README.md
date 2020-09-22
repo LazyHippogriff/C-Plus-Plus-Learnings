@@ -29,9 +29,7 @@ printHelloWorld();
 you have to do:
 
 if(aBucket.areTokensAvailable()) {
-
-    printHelloWorld();
-    
+    printHelloWorld();    
 }
 
 
