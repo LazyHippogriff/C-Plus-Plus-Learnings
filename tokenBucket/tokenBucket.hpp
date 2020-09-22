@@ -12,6 +12,30 @@ I read about the Token Bucket Algo from the below links:
 #include <iostream>
 
 class tokenBucket{
+  
+  public:
+
+    /* Constructor */
+    tokenBucket(uint64_t fa_tokenFillRatePerSec): m_tokenFillRatePerSecond(fa_tokenFillRatePerSec),m_bucketSize(fa_tokenFillRatePerSec),m_availableTokens(fa_tokenFillRatePerSec),m_lastRefillTime(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count()),m_timeIntervalPerRequestInMicroSeconds(NUMBER_OF_MICROSECONDS_IN_A_SECOND/fa_tokenFillRatePerSec){
+      fprintf(stdout,"\nToken Bucket initialised with the following values\nm_bucketSize(%lu)\nm_tokenFillRatePerSecond(%lu)\nm_availableTokens(%lu)\nm_lastRefillTime(%lu)\nm_timeIntervalPerRequestInMicroSeconds(%lu)\n",m_bucketSize,m_tokenFillRatePerSecond,m_availableTokens,m_lastRefillTime,m_timeIntervalPerRequestInMicroSeconds);
+    }
+
+    /* always called to check if sufficient number of tokens are available to server the request*/
+    bool areTokensAvailable(int fa_numberOfRequestedTokens = 1){
+      std::lock_guard<std::mutex> lg(m_mu);
+      uint64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      refill_tokens(now);
+
+      if(m_availableTokens < fa_numberOfRequestedTokens){
+        return false;
+      }
+      else{
+        m_availableTokens -= fa_numberOfRequestedTokens;
+        return true;
+      }
+    }
+
+
   private:
     static constexpr int NUMBER_OF_MICROSECONDS_IN_A_SECOND = 1000000;
     std::mutex m_mu;
