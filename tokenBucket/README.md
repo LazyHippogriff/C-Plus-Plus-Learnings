@@ -13,7 +13,7 @@ This program is my attempt at solving this kind of problem. I've tried to use th
 * https://en.wikipedia.org/wiki/Token_bucket
 * http://intronetworks.cs.luc.edu/current2/html/tokenbucket.html
 
-The usage is simple. 
+The usage is simple. It consists of a header file "tokenBucket.hpp". You need to include this in your program.
 Suppose you want to limit the execution rate of the function given below:
 
 void printHelloWorld();
