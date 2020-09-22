@@ -1,4 +1,5 @@
 This program is my attempt at solving the below problem:
+
 We have a function which is going to be called by multiple threads. The problem is to find a way to limit the number of times this function is executed per second given that we don't have a control over:
 a) The number of threads calling this function.
 b) The number of times per second this function will be called by any thread.
