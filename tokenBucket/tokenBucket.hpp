@@ -1,3 +1,9 @@
+/*
+I read about the Token Bucket Algo from the below links:
+1. http://intronetworks.cs.luc.edu/current2/html/tokenbucket.html
+2. https://en.wikipedia.org/wiki/Token_bucket
+*/
+
 #ifndef __TOKEN_BUCKET_HPP__
 #define __TOKEN_BUCKET_HPP__
 
