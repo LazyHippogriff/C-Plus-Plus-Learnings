@@ -9,7 +9,20 @@ class tokenBucket{
   
   public:
 
-    /* Constructor */
+    /* Constructors */
+      tokenBucket():m_tokenFillRatePerSecond(0),m_bucketSize(0),m_availableTokens(0),m_lastRefillTime(0),m_timeIntervalPerRequestInMicroSeconds(0){}
+
+    tokenBucket(const tokenBucket& src):m_tokenFillRatePerSecond(src.m_tokenFillRatePerSecond),m_bucketSize(src.m_bucketSize),m_availableTokens(src.m_availableTokens),m_lastRefillTime(src.m_lastRefillTime),m_timeIntervalPerRequestInMicroSeconds(src.m_timeIntervalPerRequestInMicroSeconds)  {}
+
+    tokenBucket& operator=(const tokenBucket& src) {
+      m_tokenFillRatePerSecond = src.m_tokenFillRatePerSecond;
+      m_bucketSize = src.m_bucketSize;
+      m_availableTokens = src.m_availableTokens;
+      m_lastRefillTime = src.m_lastRefillTime;
+      m_timeIntervalPerRequestInMicroSeconds = src.m_timeIntervalPerRequestInMicroSeconds;
+      return *this;
+    }
+  
     tokenBucket(uint64_t fa_tokenFillRatePerSec): m_tokenFillRatePerSecond(fa_tokenFillRatePerSec),m_bucketSize(fa_tokenFillRatePerSec),m_availableTokens(fa_tokenFillRatePerSec),m_lastRefillTime(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count()),m_timeIntervalPerRequestInMicroSeconds(NUMBER_OF_MICROSECONDS_IN_A_SECOND/fa_tokenFillRatePerSec){
       fprintf(stdout,"\nToken Bucket initialised with the following values\nm_bucketSize(%lu)\nm_tokenFillRatePerSecond(%lu)\nm_availableTokens(%lu)\nm_lastRefillTime(%lu)\nm_timeIntervalPerRequestInMicroSeconds(%lu)\n",m_bucketSize,m_tokenFillRatePerSecond,m_availableTokens,m_lastRefillTime,m_timeIntervalPerRequestInMicroSeconds);
     }
