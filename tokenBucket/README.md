@@ -28,10 +28,11 @@ printHelloWorld();
 
 you have to do:
 
-if(aBucket.getTokens(1) == 1) { //Here you are requesting 1 token from getTokens function and if it returns 1 that means your request got          fulfilled.
-
+if(aBucket.getTokens(1) == 1) { 
     printHelloWorld();    
 }
+
+tokenBucket::getTokens() will return the number of tokens depending on the number that you requested(input argument) and the number of tokens available at that point of time in the bucket. In the above example, you requested for 1 token and then check whether you got 1 token from the function before executing printHelloWorld().
 
 
 
