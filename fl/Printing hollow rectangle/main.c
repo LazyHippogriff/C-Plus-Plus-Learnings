@@ -54,7 +54,7 @@ int displayAndSaveOutput(int width, int depth) {
 
   //Printing the first line.
   for (int i = 0; i < width; ++i) {
-    fprintf(stdout, "*");
+    printf("*");
     fprintf(outputFile, "*");
   }
 
