@@ -57,33 +57,33 @@ int displayAndSaveOutput(int width, int depth) {
 		fprintf(outputFile,"*");
 	}
 
-	fprintf(stdout,"\n");
+	printf("\n");
 	fprintf(outputFile,"\n");
 
   for(int i = 0;i<depth-2;++i) {
     for(int j = 0;j<width;++j) {
 
       if(j==0 || j == width - 1) {
-        fprintf(stdout,"*");
+        printf("*");
         fprintf(outputFile,"*");
       }
       else {
-        fprintf(stdout," ");
+        printf(" ");
         fprintf(outputFile," ");
       }
     }
 
-  fprintf(stdout,"\n");
+  printf("\n");
   fprintf(outputFile,"\n");
   }
 
 	//Printing the last line.
 	for(int i = 0;i<width;++i) {
-		fprintf(stdout,"*");
+		printf("*");
 		fprintf(outputFile,"*");
 	}
 
-	fprintf(stdout,"\n");
+	printf("\n");
 	fprintf(outputFile,"\n");
 
 	return 0;
