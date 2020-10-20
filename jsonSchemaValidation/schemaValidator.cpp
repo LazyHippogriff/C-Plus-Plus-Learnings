@@ -9,7 +9,7 @@
 #include <fstream>
 #include <string>
 
-const std::string g_schema = R "({
+const std::string g_schema = R"({
 "$schema": "http://json-schema.org/draft-06/schema#",
 "title": "sampleSchema",
 "description": "A sample schema containing IPv4/v6",
@@ -26,8 +26,7 @@ const std::string g_schema = R "({
   "ipv4",
   "ipv6"
 ]
-})
-";
+})";
 
 int main(int argc, char * argv[]) {
   if (argc != 2) {
