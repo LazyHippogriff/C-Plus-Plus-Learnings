@@ -73,6 +73,7 @@ int main(int argc, char * argv[]) {
     sb.Clear();
     validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
     printf("Invalid document: %s\n", sb.GetString());
+    return EXIT_FAILURE;
   } else {
     printf("Input JSON is valid according to the schema\n");
     return EXIT_SUCCESS;
