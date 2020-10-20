@@ -4,13 +4,9 @@
  */
 
 #include "rapidjson/error/en.h"
-
 #include "rapidjson/schema.h"
-
 #include "rapidjson/stringbuffer.h"
-
 #include <fstream>
-
 #include <string>
 
 const std::string g_schema = R "({
