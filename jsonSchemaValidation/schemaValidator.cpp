@@ -48,9 +48,9 @@ int main(int argc, char * argv[]) {
 
   // Then convert the Document into SchemaDocument
   rapidjson::SchemaDocument sd(l_jsonSchemaDoc);
-
-  // Use reader to parse the JSON in stdin, and forward SAX events to validator
   rapidjson::SchemaValidator validator(sd);
+  
+  //Read JSON which has to be validated
   std::ifstream l_jsonFile(argv[1]);
   std::string l_json((std::istreambuf_iterator < char > (l_jsonFile)), (std::istreambuf_iterator < char > ()));
   l_jsonDoc.Parse(l_json.c_str());
