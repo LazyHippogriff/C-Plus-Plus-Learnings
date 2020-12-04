@@ -1,4 +1,8 @@
 //code taken from link in https://youtu.be/DEqXNfs_HhY
+#include <stdio.h>
+#include <math.h>
+#include <unistd.h>
+#include <string.h>
 
 int main() {
     float A = 0, B = 0;
@@ -42,3 +46,4 @@ int main() {
         usleep(30000);
     }
     return 0;
+}
