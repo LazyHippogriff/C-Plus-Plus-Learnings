@@ -1,0 +1,17 @@
+1. Open a file containing material name and corresponding manning roughness values.
+
+2. If unable to open file, print error msg and exit the application.
+
+3. Read 5 lines from the file. The file should be comma separated. On each line, the portion of the line before comma should be the name of the material and after the comma a manning roughness value of the material should be present.
+
+4. If there is a problem in reading 5 lines from the file, display error and exit the application.
+
+5. The program will ask the user for 4 values i.e. channel width, channel depth, slope rise and slope run.
+
+6. The program will display an error message if any of these 4 values is negative and terminate.
+
+7. If the values have been successfully taken from the user, the app will display the channel diagram using stars and dashes.
+
+8. A table would be created that has the slope as the X axis and the materials as the Y axis. The slope value will start from 0.01 and will be incremented by 0.05 till 0.21. The flow rates will than be calculated for each material-slope pair. 
+
+9. The channel shape and the results table will need to be written to both the screen and a text file. The text file shall be named theAdventuresOfZorro.txt. The opening of the results file must be checked to ensure it is successful. If not successful, an error message output and appropriate action taken.
