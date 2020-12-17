@@ -1,20 +1,25 @@
-The program will calculate the flow capacity of a simple rectangular channel using a combination of slopes and materials of construction.
+Program Objective
 
-1. The program will open a csv file named "inputFile.csv" containing material name and corresponding manning roughness values. The material name and its manning roughness value will be comma separated.
+The objective of the program is to calculate the flow capacity of a simple rectangular channel using a combination of slopes and materials of construction. The flow will be calculated using the Manning Equation. The required inputs will be taken from an input file as well as from the user.
 
-2. If unable to open file, print error msg and terminate the application.
+Program flow
 
-3. The program will read 5 lines from the input file. On each line, the string before comma would be treated as the name of the material and the float value after the comma will be treated as the manning roughness value of that material.
+1. The program will first open an input file named "inputFile.csv" containing the material name and the corresponding manning roughness values. The material name and its manning roughness value will be comma separated.
 
-4. If file couldn't be opened or there is any error in reading 5 lines from the input file, an error msg will be displayed and the application will be terminated.
+2. If unable to open file, the program will print a suitable error message and terminate.
 
-5. The program will then ask the user for 4 values i.e. channel width, channel depth, slope rise and slope run.
+3. If successful in opening the input file, the program will read 5 lines from the input file. On each line, the program expects comma separated values. The string before the comma would be treated as the name of the material and the value after the comma will be treated as the Manning roughness value of that material.
 
-6. If any of these 4 values is negative, the program will display an error message and terminate.
+4. If there is any error in reading 5 lines from the input file, a suitable error msg will be displayed and the application will be terminated.
+
+5. If reading data from the input file is successful, the program will then ask the user to enter 4 values i.e. channel width, channel depth, slope rise and slope run.
+
+6. If any of these 4 values is negative, the program will display a suitable error message and terminate.
 
 7. If the values have been successfully taken from the user, the app will display the channel diagram using stars and dashes.
 
-8. A table would be displayed on screen that has the slope as the X axis and the materials as the Y axis. The slope value will start from 0.01 and will be incremented by 0.05 till 0.21. The flow rates will than be calculated for each material-slope pair. 
+8. A table would be displayed on screen that has the slope as the X axis and the material name as the Y axis. The slope values will begin from the slope value calculated using the user input values(rise & run). Subsequent values will be calculated by incrementing 0.05 into the previous value. The flow rates will than be calculated for each material-slope pair. 
 
-9. The channel shape and the results table will need to be written to both the screen and a text file. The text file shall be named theAdventuresOfZorro.txt. If there is an error in opening the file, the program will display an error message and terminate.
+9. The channel shape and the results table will be written to both the screen and a text file. The text file will be named theAdventuresOfZorro.txt. If there is an error in opening the file, suitable error message will be printed and the program will terminate.
+
 
