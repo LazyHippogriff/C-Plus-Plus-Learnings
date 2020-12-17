@@ -3,9 +3,41 @@
 #include <math.h>
 #include <string.h>
 
-
+FILE * outputFile = NULL;
 long width, depth, rise, run;
 float velocity, hydraulicRadius, bedSlope;
+
+//Declaration of functions used in main()
+int getDataFromInputFile(char materialName[5][100],float manningRoughnessCoefficients[5]);
+float calculateHydraulicRadius(const long area, const long wettedPerimeter);
+float calculateVelocity(const float hydraulicRadius, const float bedSlope, const float manningRoughnessCoefficient);
+float calculateFlowRate(const float velocity, const long width, const long depth);
+void printProgramIntroduction();
+void printChannel(const long width, const long depth);
+int manipulateWidth(int width, int depth);
+int manipulateDepth(int width, int depth);
+int displayAndSaveOutput(const float slope, FILE* outputFile);
+
+
+int main() {
+  char materialName[5][100];
+  memset(materialName,0,500);
+  float manningRoughnessCoefficients[5]={0};
+  getDataFromInputFile(materialName,manningRoughnessCoefficients);
+  printProgramIntroduction();
+  fprintf(stdout,"\nPlease enter the following channel properties:\n\tWidth (m) -> ");
+  scanf("%ld", &width);
+  fprintf(stdout,"\tDepth (m) -> ");
+  scanf("%ld", &depth);
+  fprintf(stdout,"Please enter the slope parameters:\n\tRise (m) -> ");
+        scanf("%ld",&rise);
+        fprintf(stdout,"\tRun (m) -> ");
+        scanf("%ld",&run);
+        printChannel(width,depth);
+        return 0;
+}
+
+
 float calculateHydraulicRadius(const long area, const long wettedPerimeter) {
   return area/wettedPerimeter;
 }
@@ -15,52 +47,31 @@ float calculateVelocity(const float hydraulicRadius, const float bedSlope, const
   return velocity;
 }
 
+
 float calculateFlowRate(const float velocity, const long width, const long depth) {
-  const long crossSectionalArea = width * depth;
-  const float flowRate = velocity * crossSectionalArea;
-  return flowRate;
+        const long crossSectionalArea = width * depth;
+        const float flowRate = velocity * crossSectionalArea;
+        return flowRate;
 }
 
-int readInputFile(char materialName[5][100],float manningRoughnessCoefficient[5])
-{
-  FILE* inputFile = fopen("inputFile.txt","r");
-  if(!inputFile) {
-    fprintf(stdout,"\nError in opening file(inputFile.txt). Please make sure that this file is available\n");
-    return -1;
-  }
-
-  char * line = NULL;
-  size_t len = 0;
-  ssize_t read;
-  int materialCount = 0;
-  while ((read = getline(&line, &len, inputFile)) != -1) {
-    int countNameLen = 0;
-    for(int i=0;i<read;++i) {
-      if(line[i] != ',') {
-        ++countNameLen;
-      }
-      else {
-        break;
-      }
-    }
-    strncpy(materialName[materialCount],line,countNameLen);
-    char* pend;
-    manningRoughnessCoefficient[materialCount] = strtof(line+countNameLen+1, &pend);
-    fprintf(stdout,"\nMaterial-->%s,countNameLen-->%d,ManningRoughnessCoefficient-->%f\n",materialName[materialCount],countNameLen,manningRoughnessCoefficient[materialCount]);
-    if (line) {
-      free(line);
-      line = NULL;
-      len = 0;
-    }
-  }
-
-    if (line) {
-      free(line);
-    }
-
-  fclose(inputFile);
+int getDataFromInputFile(char materialName[5][100],float manningRoughnessCoefficients[5]) {
+        FILE* inputFile = fopen("inputFile.txt","r");
+        if(!inputFile) {
+                fprintf(stdout,"\nError in opening file(inputFile.txt). Please make sure that this file is available\n");
+                return -1;
+        }
+    else {
+                        int index = 0;
+                        while (fscanf(inputFile, "%20[^,],%f\n", materialName[index],&manningRoughnessCoefficients[index]) == 2) {
+                                fprintf(stdout,"\nMaterial-->%s,ManningRoughnessCoefficient-->%f\n",materialName[index],manningRoughnessCoefficients[index]);
+                                ++index;
+                                if(index == 5) {
+                                        break;
+                                }
+                        }
+                        fclose(inputFile);
+                }
   return 0;
-
 }
 
 void printProgramIntroduction() {
@@ -74,7 +85,6 @@ void printProgramIntroduction() {
   fprintf(stdout,"*\n*");
   fprintf(stdout," Open Channel Flow *\n");
   fprintf(stdout,"*");
-  for(int i=0;i<19;++i) {
   for(int i=0;i<19;++i) {
     fprintf(stdout," ");
   }
@@ -119,26 +129,27 @@ void printChannel(const long width, const long depth) {
 }
 
 
-FILE * outputFile = NULL;
 
-int manipulateWidth(int width, int depth);
-int manipulateDepth(int width, int depth);
-int displayAndSaveOutput(int width, int depth);
+int displayAndSaveOutput(const float slope, FILE* outputFile) {
+        fprintf(stdout,"\n%-25s*\t\t\tSlope\n"," ");
+        fprintf(stdout,"\n%-15s%-10s*  %-7f  *  %-7f  *  %-7f  *  %-7f  *  %-7f  *  \n","Material"," ",slope,slope+0.05,slope+0.1,slope+0.15,slope+0.2);
+        for(int i=0;i<100;++i){
+                fprintf(stdout,"-");
+        }
+        fprintf(stdout,"\n");
+        for(int index=0;index<5;index++) {
+                fprintf(stdout,"%-25s*  %-7f  |  %-7f  |  %-7f  |  %-7f  |  %-7f  |\n",materialName[index],mValue[index],mValue[index],mValue[index],mValue[index],mValue[index]);
+        }
 
-int main() {
-  char materialName[5][100];
-  memset(materialName,0,500);
-  float manningRoughnessCoefficient[5]={0};
-  readInputFile(materialName,manningRoughnessCoefficient);
-  printProgramIntroduction();
-  fprintf(stdout,"\nPlease enter the following channel properties:\n\tWidth (m) -> ");
-  scanf("%ld", &width);
-  fprintf(stdout,"\tDepth (m) -> ");
-  scanf("%ld", &depth);
-  fprintf(stdout,"Please enter the slope parameters:\n\tRise (m) -> ");
-  scanf("%ld",&rise);
-  fprintf(stdout,"\tRun (m) -> ");
-  scanf("%ld",&run);
-  printChannel(width,depth);
-  return 0;
+        fprintf(out_file,"\n%-25s*\t\t\tSlope\n"," ");
+        fprintf(out_file,"\n%-15s%-10s*  %-7f  *  %-7f  *  %-7f  *  %-7f  *  %-7f  *  \n","Material"," ",0.01,0.06,0.11,0.16,0.21);
+        for(int i=0;i<100;++i){
+                fprintf(out_file,"-");
+        }
+        fprintf(out_file,"\n");
+        for(int index=0;index<5;index++) {
+                fprintf(out_file,"%-25s*  %-7f  |  %-7f  |  %-7f  |  %-7f  |  %-7f  |\n",materialName[index],mValue[index],mValue[index],mValue[index],mValue[index],mValue[index]);
+        }
+
+        fclose(out_file);
 }
