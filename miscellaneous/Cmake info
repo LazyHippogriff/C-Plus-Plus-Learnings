@@ -1,0 +1,15 @@
+//Building from CMake
+cmake --build . 
+
+//Find an external package(cmake package) and load its settings
+find_package()
+* Two ways of using find_package():
+- MODULE
+- CONFIG
+e.g. find_package(GTest CONFIG REQUIRED)
+target_link_libraries(calculator_unit_test PRIVATE calculator GTest::gtest)
+
+find_package() looks for the external package with the help of CMAKE_PREFIX_PATH
+e.g. cmake ../ -DCMAKE_PREFIX_PATH=C:\Users\lenovo
+
+
