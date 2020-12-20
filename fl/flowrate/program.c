@@ -5,23 +5,32 @@
 
 
 FILE * outputFile = NULL;
-long width, depth, rise, run;
-float velocity, hydraulicRadius, bedSlope;
+long width, depth, rise, run, area, wettedPerimeter;
+float hydraulicRadius, bedSlope;
 char materialName[5][100];
 float manningRoughnessCoefficients[5];
 
+void printAllConstants() {
+  fprintf(stdout,"\nwidth-->%ld, depth-->%ld, rise--%ld, run-->%ld, area-->%ld, wettedPerimeter-->%ld\n",width, depth, rise, run, area, wettedPerimeter);
+  fprintf(stdout,"hydraulicRadius-->%f, bedSlope-->%f\n",hydraulicRadius, bedSlope);
+}
 
 //Declaration of functions used in main()
 int getDataFromInputFile();
 void getDataFromUser();
-float calculateHydraulicRadius(const long area, const long wettedPerimeter);
-float calculateVelocity(const float hydraulicRadius, const float bedSlope, const float manningRoughnessCoefficient);
-float calculateFlowRate(const float velocity, const long width, const long depth);
+void calculateChannelConstants();
+void calculateArea();
+void calculateWettedPerimeter();
+void calculateBedSlope();
+void calculateHydraulicRadius();
+float calculateVelocity(const float slope, const float manningRoughnessCoefficient);
+float calculateFlowRate(const float velocity);
 void printProgramIntroduction();
 void printChannel();
 int manipulateWidth(int width, int depth);
 int manipulateDepth(int width, int depth);
 int displayAndSaveOutput();
+
 
 
 int main() {
@@ -34,6 +43,8 @@ int main() {
   }
 
   getDataFromUser();
+
+  calculateChannelConstants();
 
   printChannel();
 
@@ -63,14 +74,14 @@ void getDataFromUser() {
   }
 
   fprintf(stdout,"Please enter the slope parameters:\n\tRise (m) -> ");
-        scanf("%ld",&rise);
+  scanf("%ld",&rise);
   while(rise < 0) {
     fprintf(stdout,"\nPlease enter a positive value of rise\n");
     fprintf(stdout,"\nPlease enter rise of the channel(m) -> ");
     scanf("%ld", &rise);
   }
 
-        fprintf(stdout,"\tRun (m) -> ");
+  fprintf(stdout,"\tRun (m) -> ");
   scanf("%ld",&run);
   while(run < 0) {
     fprintf(stdout,"\nPlease enter a positive value of run\n");
@@ -78,23 +89,39 @@ void getDataFromUser() {
     scanf("%ld", &run);
   }
 
-  bedSlope = rise/run;
 }
 
-
-float calculateHydraulicRadius(const long area, const long wettedPerimeter) {
-  return area/wettedPerimeter;
+void calculateChannelConstants() {
+  calculateArea();
+  calculateWettedPerimeter();
+  calculateBedSlope();
+  calculateHydraulicRadius();
 }
 
-float calculateVelocity(const float hydraulicRadius, const float bedSlope, const float manningRoughnessCoefficient) {
-  const float velocity = ((pow(hydraulicRadius,0.67) * pow(bedSlope,0.5) ) / manningRoughnessCoefficient);
+void calculateArea() {
+  area = width * depth;
+}
+
+void calculateWettedPerimeter() {
+  wettedPerimeter = width + (2 * depth);
+}
+
+void calculateBedSlope() {
+  bedSlope = rise/(float)run;
+}
+
+void calculateHydraulicRadius() {
+  hydraulicRadius = area/(float)wettedPerimeter;
+}
+
+float calculateVelocity(const float slope, const float manningRoughnessCoefficient) {
+  const float velocity = ((pow(hydraulicRadius,0.67) * pow(slope,0.5) ) / manningRoughnessCoefficient);
   return velocity;
 }
 
 
-float calculateFlowRate(const float velocity, const long width, const long depth) {
-        const long crossSectionalArea = width * depth;
-        const float flowRate = velocity * crossSectionalArea;
+float calculateFlowRate(const float velocity) {
+        const float flowRate = velocity * area;
         return flowRate;
 }
 
@@ -180,33 +207,51 @@ void printChannel() {
 
 
 int displayAndSaveOutput() {
-        outputFile = fopen("theAdventuresOfZorro.txt","w");
-        if(!outputFile) {
-                fprintf(stdout,"\nError in opening output file(theAdventuresOfZorro.txt).\n");
-                return -1;
-        }
+  outputFile = fopen("theAdventuresOfZorro.txt","w");
+  if(!outputFile) {
+    fprintf(stdout,"\nError in opening output file(theAdventuresOfZorro.txt).\n");
+    return -1;
+  }
 
-        fprintf(stdout,"\n%-25s*\t\t\tSlope\n"," ");
-        fprintf(stdout,"\n%-15s%-10s*  %-7f  *  %-7f  *  %-7f  *  %-7f  *  %-7f  *  \n","Material"," ",bedSlope,bedSlope+0.05,bedSlope+0.1,bedSlope+0.15,bedSlope+0.2);
-        for(int i=0;i<100;++i){
-                fprintf(stdout,"-");
-        }
-        fprintf(stdout,"\n");
-        for(int index=0;index<5;index++) {
-                fprintf(stdout,"%-25s*  %-7f  |  %-7f  |  %-7f  |  %-7f  |  %-7f  |\n",materialName[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index]);
-        }
+  float slopeRange[5];
+  for(int i =0;i<5;++i) {
+    slopeRange[i] = bedSlope + (0.05*i);
+  }
 
-        fprintf(outputFile,"\n%-25s*\t\t\tSlope\n"," ");
-        fprintf(outputFile,"\n%-15s%-10s*  %-7f  *  %-7f  *  %-7f  *  %-7f  *  %-7f  *  \n","Material"," ",0.01,0.06,0.11,0.16,0.21);
-        for(int i=0;i<100;++i){
-                fprintf(outputFile,"-");
-        }
-        fprintf(outputFile,"\n");
-        for(int index=0;index<5;index++) {
-                fprintf(outputFile,"%-25s*  %-7f  |  %-7f  |  %-7f  |  %-7f  |  %-7f  |\n",materialName[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index],manningRoughnessCoefficients[index]);
-        }
+  fprintf(stdout,"\n%-25s*\t\t\tSlope\n\n%-15s%-10s"," ", "Material"," ");
+  fprintf(outputFile,"\n%-25s*\t\t\tSlope\n\n%-15s%-10s"," ", "Material"," ");
 
-        fclose(outputFile);
-        return 0;
+  for(int i =0 ;i<5;++i) {
+    fprintf(stdout, "*   %-8.2f  ",slopeRange[i]);
+    fprintf(outputFile, "*   %-8.2f  ",slopeRange[i]);
+  }
+
+  fprintf(stdout,"*  \n");
+  fprintf(outputFile,"*  \n");
+
+  for(int i=0;i<100;++i){
+    fprintf(stdout,"-");
+    fprintf(outputFile,"-");
+  }
+
+  fprintf(stdout,"\n");
+  fprintf(outputFile,"\n");
+
+  for(int rowNumber=0;rowNumber<5;rowNumber++) {
+    fprintf(stdout,"%-25s*",materialName[rowNumber]);
+    fprintf(outputFile,"%-25s*",materialName[rowNumber]);
+    for(int colNumber = 0;colNumber<5;colNumber++) {
+      const float velocity = calculateVelocity(slopeRange[colNumber],manningRoughnessCoefficients[rowNumber]);
+      const float flowRate = calculateFlowRate(velocity);
+      fprintf(stdout,"   %-8.2f  |",flowRate);
+      fprintf(outputFile,"   %-8.2f  |",flowRate);
+    }
+    fprintf(stdout,"\n");
+    fprintf(outputFile,"\n");
+  }
+
+  fclose(outputFile);
+  return 0;
 }
+
 
