@@ -1,5 +1,0 @@
-Asphalt,0.016
-Cast Iron,0.012
-Concrete,0.011
-Gravel,0.023
-Natural channels,0.060
