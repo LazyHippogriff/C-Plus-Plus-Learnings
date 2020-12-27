@@ -28,42 +28,19 @@ char materialName[5][100];
 float manningRoughnessCoefficients[5];
 
 //Declaration of functions used in main()
-
-/* This function will read the input File. */
 int getDataFromInputFile();
-
-/* This function will get the channel dimension values from the user. */
 void getDataFromUser();
-
-/* This function will calculate the Area, Wetted Perimeter, Slope and Hydraulic Radius of the channel. */
 void calculateChannelConstants();
-
-/* This function will calcluate the area of the channel. */
 void calculateArea();
-
-/* This function will calculate the Wetter Perimeter of the channel. */
 void calculateWettedPerimeter();
-
-/* This function will calculate the slope of the channel. */
 void calculateBedSlope();
-
-/* This function will calculate the Hydraulic Radius of the channel. */
 void calculateHydraulicRadius();
-
-/* This function will calculate the velocity of the flow. */
 float calculateVelocity(const float slope, const float manningRoughnessCoefficient);
-
-/* This function will calculate the flow rate. */
 float calculateFlowRate(const float velocity);
-
-/* This function will print the program introduction message. */
 void printProgramIntroduction();
-
-/* This function will print the channel diagram indicating the width and depth of the channel using stars and dashes. */
 void printChannel();
-
-/* This function will display the result matrix on screen and save that in the output file("theAdventuresOfZorro.txt") as well. */
 int displayAndSaveOutput();
+
 
 int main() {
 
@@ -88,6 +65,7 @@ int main() {
         return 0;
 }
 
+/* This function will get the channel dimension values from the user. */
 void getDataFromUser() {
         fprintf(stdout,"\nPlease enter the following channel properties:\n\tWidth (in metre) -> ");
         while(scanf("%ld", &width) != 1 || width < 0) {
@@ -118,6 +96,7 @@ void getDataFromUser() {
         }
 }
 
+/* This function will calculate the Area, Wetted Perimeter, Slope and Hydraulic Radius of the channel. */
 void calculateChannelConstants() {
         calculateArea();
         calculateWettedPerimeter();
@@ -125,37 +104,45 @@ void calculateChannelConstants() {
         calculateHydraulicRadius();
 }
 
+/* This function will calcluate the area of the channel. */
 void calculateArea() {
         area = width * depth;
 }
 
+/* This function will calculate the Wetter Perimeter of the channel. */
 void calculateWettedPerimeter() {
         wettedPerimeter = width + (2 * depth);
 }
 
+/* This function will calculate the slope of the channel. */
 void calculateBedSlope() {
         bedSlope = rise/(float)run;
 }
 
+/* This function will calculate the Hydraulic Radius of the channel. */
 void calculateHydraulicRadius() {
         hydraulicRadius = area/(float)wettedPerimeter;
 }
 
+/* This function will calculate the velocity of the flow. */
 float calculateVelocity(const float slope, const float manningRoughnessCoefficient) {
         const float velocity = ((pow(hydraulicRadius,0.67) * pow(slope,0.5) ) / manningRoughnessCoefficient);
         return velocity;
 }
 
 
+/* This function will calculate the flow rate. */
 float calculateFlowRate(const float velocity) {
         const float flowRate = velocity * area;
         return flowRate;
 }
 
+
+/* This function will read the input File. */
 int getDataFromInputFile() {
-        FILE* inputFile = fopen("inputFile.txt","r");
+        FILE* inputFile = fopen("inputFile.csv","r");
         if(!inputFile) {
-                fprintf(stdout,"\nError in opening file(inputFile.txt). Please make sure that this file is available\n");
+                fprintf(stdout,"\nError in opening file(inputFile.csv). Please make sure that this file is available\n");
                 return -1;
         }
         else {
@@ -168,7 +155,7 @@ int getDataFromInputFile() {
                                 break;
                         }
                         if(ret != 2) {
-                                fprintf(stdout,"\ninputFile.txt doesn't contain 5 lines. There should be five entries, one per line, in this file. Each line will consist of a name for the material and the associated roughness.\n");
+                                fprintf(stdout,"\ninputFile.csv doesn't contain 5 lines. There should be five entries, one per line, in this file. Each line will consist of a name for the material and the associated roughness.\n");
                                 fclose(inputFile);
                                 return -1;
                         }
@@ -176,7 +163,7 @@ int getDataFromInputFile() {
                         ret = fscanf(inputFile, "%20[^,],%f\n", materialName[index],&manningRoughnessCoefficients[index]);
                 }
                 if(index != 5) {
-                        fprintf(stdout,"\ninputFile.txt is not as per expectations. In this file, there should be five entries, one per line. Each line should consist of 2 comma separated values. The first value is the name of the material and the second value is its Manning roughness factor.\n");
+                        fprintf(stdout,"\ninputFile.csv is not as per expectations. In this file, there should be five entries, one per line. Each line should consist of 2 comma separated values. The first value is the name of the material and the second value is its Manning roughness factor.\n");
                         fclose(inputFile);
                         return -1;
                 }
@@ -185,6 +172,7 @@ int getDataFromInputFile() {
         return 0;
 }
 
+/* This function will print the program introduction message. */
 void printProgramIntroduction() {
         for(int i=0;i<21;++i) {
                 fprintf(stdout,"*");
@@ -207,6 +195,7 @@ void printProgramIntroduction() {
         fprintf(stdout,"- Using Manning's equation calculate the flow rate of an open channel for a range of materials & bed slopes\n");
 }
 
+/* This function will print the channel diagram indicating the width and depth of the channel using stars and dashes. */
 void printChannel() {
         fprintf(stdout,"\nThe channel\n***********\n");
         for(int row = 0;row < depth + 3; ++row) {
@@ -239,8 +228,7 @@ void printChannel() {
         fprintf(stdout,"%ld\n",width);
 }
 
-
-
+/* This function will display the result matrix on screen and save that in the output file("theAdventuresOfZorro.txt") as well. */
 int displayAndSaveOutput() {
         outputFile = fopen("theAdventuresOfZorro.txt","w");
         if(!outputFile) {
