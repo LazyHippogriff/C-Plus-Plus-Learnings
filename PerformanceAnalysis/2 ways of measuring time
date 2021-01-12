@@ -1,0 +1,35 @@
+1. Using std::chrono to access system timer(suitable for measuring events with a duration of more than a microsecond.)
+//Even though the system timer can return timestamps with nano-seconds accuracy, it is not suitable for measuring short running events because it takes a long time to obtain the timestamp via the clock_gettime system call.
+
+#include <cstdint>
+#include <chrono>
+
+// returns elapsed time in nanoseconds
+uint64_t timeWithChrono() {
+using namespace std::chrono;
+uint64_t start = duration_cast<nanoseconds>
+(steady_clock::now().time_since_epoch()).count();
+
+// run something
+
+uint64_t end = duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
+
+uint64_t delta = end - start;
+return delta;
+}
+
+2. Using __rdtsc compiler builtins to access TSC(Time Stamp Counter is a HW timer which is implemented as a HW register.)
+//It is suitable for measuring short events with a duration from nanoseconds and up to a minute.
+
+#include <x86intrin.h>
+#include <cstdint>
+
+// returns the number of elapsed reference clocks
+uint64_t timeWithTSC() {
+
+uint64_t start = __rdtsc();
+
+// run something
+
+return __rdtsc() - start;
+}
