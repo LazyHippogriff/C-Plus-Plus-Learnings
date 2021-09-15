@@ -1,2 +1,5 @@
 * Cache coherency
 A Primer on Memory Consistency and Cache Coherence(Second Edition) by Vijay Nagarajan, Daniel J. Sorin, Mark D. Hill, and David A. Wood
+
+* About alignment/padding/flexible array member
+https://sites.google.com/site/embeddedmonologue/home/c-programming/data-alignment-structure-padding-and-flexible-array-member
