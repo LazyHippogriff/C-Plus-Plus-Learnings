@@ -1,0 +1,94 @@
+Following steps were followed today for installing YCM on R3CP1:
+
+1. Installed libtool, ncurses-devel, cmake, python3-devel, clang via yum.
+2. Installed vundle(https://linuxhint.com/vim-vundle-tutorial/). Cloned vundle locally on laptop 'git clone https://github.com/VundleVim/Vundle.vim'
+3. Upload this using winscp. Copy this folder @ ~/.vim/bundle/Vundle.vim
+4. In ~/.vimrc file save the following lines:
+
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+
+" Add plugins here
+
+call vundle#end()
+filetype plugin indent on
+
+5. Ran the following VIM command to initialize Vundle Plugin Manager:
+:PluginInstall
+
+In case, there's an error, you might need to do the following:
+find ~/.vim -type f -iname '*.vim' -exec dos2unix {} \+
+
+
+6. Cloned ycm locally. Ran the following commands:
+
+git clone https://github.com/ycm-core/YouCompleteMe.git
+git stash
+git checkout d98f896
+git submodule update --init --recursive
+
+7. Uploaded the folder @ ~/.vim/bundle/YouCompleteMe
+
+8. Add the following line in ~/.vimrc, between call vundle#begin() and 'call vundle#end():
+
+Plugin 'ycm-core/YouCompleteMe'
+
+9. Ran the following commands:
+mkdir ~/ycm_build
+cd ~/ycm_build
+cmake -G "Unix Makefiles" -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+cmake --build . --target ycm_core --config Release
+
+mkdir regex_build
+cd regex_build/
+cmake -G "Unix Makefiles" . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/third_party/cregex
+cmake --build . --target _regex --config Release
+
+Install watchdog library
+
+The watchdog dependency is located in YouCompleteMe/third_party/ycmd/third_party/watchdog_deps/watchdog/.
+
+Went to the watchdog directory, remove the build/lib3 directory and them copy the entire src/watchdog into build/lib3.
+
+10. In Ravi sir's home directory, created symlink of the .vim folder present in the root directory. Copied the contents of .vimrc as well.
+
+11. Created .ycm_extra_conf.py in the root project directory with the following contents:
+
+flags = [
+'-std=c++17',
+'-I.',
+'-I./config/include',
+'-I',
+'./framework/',
+'--gcc-toolchain=/opt/rh/gcc-toolset-9/root/usr/',
+'-isystem',
+'/opt/rh/gcc-toolset-9/root/usr/include/c++/9/x86_64-redhat-linux/',
+'-isystem',
+'/opt/rh/gcc-toolset-9/root/usr/include/c++/9/backward/',
+'-isystem',
+'/opt/rh/gcc-toolset-9/root/usr/include/c++/9/',
+'-isystem',
+'/usr/local/include',
+'-isystem',
+'-isystem',
+'/include',
+'-isystem',
+'/usr/include',
+]
+def FlagsForFile( filename, **kwargs ):
+        return {
+                        'flags': flags,
+                        'do_cache': True
+                        }
+
+Some useful links for reference:
+https://github.com/ycm-core/YouCompleteMe/#general-usage
+https://github.com/ycm-core/YouCompleteMe/issues/3764
+https://github.com/ycm-core/YouCompleteMe/wiki/Full-Installation-Guide
+https://vi.stackexchange.com/questions/7470/how-to-install-youcompleteme-with-clang-completer-offline
+https://jonasdevlieghere.com/a-better-youcompleteme-config/
+https://github-wiki-see.page/m/ycm-core/YouCompleteMe/wiki/C-family-Semantic-Completion-through-libclang
+
