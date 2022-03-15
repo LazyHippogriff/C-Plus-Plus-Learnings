@@ -3,3 +3,5 @@ A Primer on Memory Consistency and Cache Coherence(Second Edition) by Vijay Naga
 
 * About alignment/padding/flexible array member
 https://sites.google.com/site/embeddedmonologue/home/c-programming/data-alignment-structure-padding-and-flexible-array-member
+
+* https://www.arangodb.com/2021/02/cpp-memory-model-migrating-from-x86-to-arm/
